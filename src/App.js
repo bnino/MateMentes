@@ -259,6 +259,18 @@ const App = () => {
     );
   };
 
+  const Footer = () => (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: 0.5, duration: 0.5 }}
+      className="absolute bottom-3 left-0 right-0 text-white text-xs font-medium flex items-center justify-end px-4"
+    >
+      <span>&copy;</span>
+      <span>Developed by Branium Code - Brayan Niño</span>
+    </motion.div>
+  );
+
 
   return (
     
@@ -277,11 +289,18 @@ const App = () => {
           transition={{ duration: 0.8 }}
           className="text-center mb-8"
         >
-          <h1 className="text-5xl font-extrabold text-white drop-shadow-lg">
+          <div className="flex items-center justify-center gap-3 flex-wrap">
+          <img
+            src="/icons/icon.png" // Ruta a tu logo en public/icons
+            alt="Logo MateMentes"
+            className="w-10 h-10 sm:w-16 sm:h-16 object-contain"
+          />
+          <h1 className="text-4xl sm:text-5xl font-extrabold text-white drop-shadow-lg">
             <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-purple-700">
               MateMentes
             </span>
           </h1>
+        </div>
           <p className="text-xl text-white mt-2 drop-shadow">¡Aprende y diviértete con los números!</p>
         </motion.div>
 
@@ -454,6 +473,7 @@ const App = () => {
           )}
         </AnimatePresence>
       </div>
+      <Footer />
     </div>
   );
 };

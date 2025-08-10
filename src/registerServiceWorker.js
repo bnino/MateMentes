@@ -6,7 +6,7 @@ export function registerServiceWorker({ onUpdate, onSuccess } = {}) {
 
       navigator.serviceWorker.register(swUrl)
         .then((registration) => {
-          console.log('Service Worker registrado:', registration);
+          //console.log('Service Worker registrado:', registration);
 
           // detectar updates
           registration.onupdatefound = () => {
