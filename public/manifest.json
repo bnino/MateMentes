@@ -1,0 +1,20 @@
+{
+  "short_name": "MateMentes",
+  "name": "MateMentes - ¡Aprende y diviértete con los números!",
+  "icons": [
+    {
+      "src": "icons/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "icons/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ],
+  "start_url": ".",
+  "display": "standalone",
+  "theme_color": "#f59e0b",
+  "background_color": "#ffffff"
+}
