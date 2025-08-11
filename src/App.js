@@ -29,8 +29,19 @@ const App = () => {
   const [problemCount, setProblemCount] = useState(0);
   const MAX_PROBLEMS = 10;
 
+  const [playerHistory, setPlayerHistory] = useState(() => {
+    try {
+      const savedHistory = localStorage.getItem('results_history');
+      return savedHistory ? JSON.parse(savedHistory) : [];
+    } catch (error) {
+      console.error("Error parsing player history from localStorage:", error);
+      return [];
+    }
+  });
+
   useEffect(() => {
     if (problemCount >= MAX_PROBLEMS) {
+      handleSaveResult({ playerName, correct: correctAnswers, incorrect: incorrectAnswers });
       setCurrentStep('showResults');
     }
   }, [problemCount]);
@@ -104,6 +115,11 @@ const App = () => {
   };
 
   const handleGoBack = () => {
+    if (currentStep === 'showHistory') {
+      setCurrentStep('enterName');
+      return;
+    }
+
     if (playerName && currentStep !== 'enterName') { // No permitir volver a la pantalla de nombre si ya hay uno
 
       if (currentStep === 'solveProblem' && isAnswer !== 0) {
@@ -149,7 +165,7 @@ const App = () => {
     }
   };
 
-  const PlayerNameInput = ({ onSubmit }) => {
+  const PlayerNameInput = ({ onSubmit, onShowHistory }) => {
     //playSound();
     const [name, setName] = useState('');
     const handleSubmit = (e) => {
@@ -190,6 +206,15 @@ const App = () => {
             ¡Empezar!
           </motion.button>
         </form>
+        <motion.button
+          onClick={onShowHistory}
+          className="mt-4 px-6 py-3 bg-gray-400 text-white rounded-full shadow-md hover:bg-gray-500 transition-colors duration-300"
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+        >
+          Historial
+        </motion.button>
+
       </motion.div>
     );
   };
@@ -231,9 +256,10 @@ const App = () => {
     );
   };
 
-  const ResultsScreen = ({ playerName, correct, incorrect, onPlayAgain }) => {
+  const ResultsScreen = ({ playerName, correct, incorrect, onPlayAgain, onSaveResult }) => {
     const total = correct + incorrect;
     const percentage = total > 0 ? ((correct / total) * 100).toFixed(0) : 0;
+
     return (
       <motion.div
         className="bg-white/90 backdrop-blur-xl border border-gray-200/50 rounded-3xl p-8 shadow-xl text-center"
@@ -259,6 +285,53 @@ const App = () => {
     );
   };
 
+  const HistoryScreen = ({ history, onBack }) => {
+    return (
+      <motion.div
+        className="bg-white/90 backdrop-blur-xl border border-gray-200/50 rounded-3xl p-8 shadow-xl text-center"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6 }}
+      >
+        <h2 className="text-3xl font-bold text-gray-800 mb-6">Historial de Jugadores</h2>
+        {history.length === 0 ? (
+          <p className="text-gray-600">Aún no hay resultados. ¡Sé el primero en jugar!</p>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="min-w-full bg-white rounded-lg shadow-md">
+              <thead>
+                <tr className="bg-gray-200 text-gray-700 uppercase text-sm leading-normal">
+                  <th className="py-3 px-6 text-left">Jugador</th>
+                  <th className="py-3 px-6 text-center">Aciertos</th>
+                  <th className="py-3 px-6 text-center">Errores</th>
+                  <th className="py-3 px-6 text-center">Total</th>
+                </tr>
+              </thead>
+              <tbody className="text-gray-600 text-sm font-light">
+                {history.map((entry, index) => (
+                  <tr key={index} className="border-b border-gray-200 hover:bg-gray-100">
+                    <td className="py-3 px-6 text-left whitespace-nowrap">{entry.playerName}</td>
+                    <td className="py-3 px-6 text-center">{entry.correct}</td>
+                    <td className="py-3 px-6 text-center">{entry.incorrect}</td>
+                    <td className="py-3 px-6 text-center">{entry.correct + entry.incorrect}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+        <motion.button
+          onClick={onBack}
+          className="mt-8 px-6 py-3 bg-gray-600 text-white rounded-full shadow-md hover:bg-gray-700 transition-colors duration-300"
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+        >
+          Volver
+        </motion.button>
+      </motion.div>
+    );
+  };
+
   const Footer = () => (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -271,6 +344,14 @@ const App = () => {
     </motion.div>
   );
 
+  const handleSaveResult = ({ playerName, correct, incorrect }) => {
+    setPlayerHistory(prevHistory => {
+      const newHistory = [{ playerName, correct, incorrect }, ...prevHistory];
+      const limitedHistory = newHistory.slice(0, 10); // Limitar a los últimos 10
+      localStorage.setItem('results_history', JSON.stringify(limitedHistory));
+      return limitedHistory;
+    });
+  };
 
   return (
     
@@ -304,6 +385,16 @@ const App = () => {
           <p className="text-xl text-white mt-2 drop-shadow">¡Aprende y diviértete con los números!</p>
         </motion.div>
 
+        {playerName && currentStep !== 'enterName' && currentStep !== 'showHistory' && (
+          <motion.div
+            initial={{ opacity: 0, x: 50 }}
+            animate={{ opacity: 1, x: 0 }}
+            className="absolute top-4 right-4 bg-white/80 backdrop-blur-md rounded-full px-4 py-2 shadow-md text-gray-800 font-bold text-lg"
+          >
+            {playerName}
+          </motion.div>
+        )}
+
         <AnimatePresence mode="wait">
           {currentStep === 'enterName' && (
             <motion.div
@@ -313,7 +404,19 @@ const App = () => {
               exit={{ opacity: 0, x: 100 }}
               transition={{ duration: 0.5 }}
             >
-              <PlayerNameInput onSubmit={handleNameSubmit} />
+              <PlayerNameInput onSubmit={handleNameSubmit} onShowHistory={() => setCurrentStep('showHistory')} />
+            </motion.div>
+          )}
+
+          {currentStep === 'showHistory' && (
+            <motion.div
+              key="showHistory"
+              initial={{ opacity: 0, x: -100 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: 100 }}
+              transition={{ duration: 0.5 }}
+            >
+              <HistoryScreen history={playerHistory} onBack={() => setCurrentStep('enterName')} />
             </motion.div>
           )}
 
@@ -468,6 +571,7 @@ const App = () => {
                 correct={correctAnswers}
                 incorrect={incorrectAnswers}
                 onPlayAgain={resetGame}
+                onSaveResult={handleSaveResult}
               />
             </motion.div>
           )}
