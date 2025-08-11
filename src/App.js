@@ -385,16 +385,6 @@ const App = () => {
           <p className="text-xl text-white mt-2 drop-shadow">¡Aprende y diviértete con los números!</p>
         </motion.div>
 
-        {playerName && currentStep !== 'enterName' && currentStep !== 'showHistory' && (
-          <motion.div
-            initial={{ opacity: 0, x: 50 }}
-            animate={{ opacity: 1, x: 0 }}
-            className="absolute top-4 right-4 bg-white/80 backdrop-blur-md rounded-full px-4 py-2 shadow-md text-gray-800 font-bold text-lg"
-          >
-            {playerName}
-          </motion.div>
-        )}
-
         <AnimatePresence mode="wait">
           {currentStep === 'enterName' && (
             <motion.div
