@@ -62,7 +62,6 @@ MateMentes busca que el aprendizaje de las matemáticas sea dinámico y motivado
 
 ## 📷 Capturas y ejemplo de uso
 
-*(Aquí puedes añadir capturas reales de la app)*
 ![Interfaz Inicial](public/captures/index.png)
 
 ![Historial](public/captures/history.png)
